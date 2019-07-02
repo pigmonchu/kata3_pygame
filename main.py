@@ -49,6 +49,8 @@ class Ball(pg.Surface):
         pg.Surface.__init__(self, (self.w, self.h))
         self.fill(self.color)
 
+        self.sound = pg.mixer.Sound(os.getcwd()+'/assets/sonido.aiff')
+
     '''
     def color(self, valor=None):
         #Actua como getter
@@ -100,12 +102,14 @@ class Ball(pg.Surface):
             self.dirx = self.dirx * -1
             self.x += self.dirx
 
+            self.sound.play()
+
 
 class Game:
     clock = pg.time.Clock()
     pause = False
     puntuaciones = {1: 0, 2: 0}
-    winScore = 3
+    winScore = 15
     winner = None
 
     def __init__(self, width, height):
