@@ -1,6 +1,6 @@
 import pygame as pg
 from pygame.locals import *
-import sys
+import sys, os
 import random
 
 _fps = 60
@@ -104,6 +104,7 @@ class Ball(pg.Surface):
 class Game:
     clock = pg.time.Clock()
     pause = False
+    puntuaciones = {1: 0, 2: 0}
 
     def __init__(self, width, height):
         self.size = (width, height)
@@ -126,6 +127,13 @@ class Game:
         self.player2 = Raquet()
         self.player2.y = 252
         self.player2.x = 16
+
+        self.puntuaciones[1] = 0
+        self.puntuaciones[2] = 0
+
+        fuente = pg.font.Font(os.getcwd()+'/assets/font.ttf', 48)
+        self.marcador1 = fuente.render(str(self.puntuaciones[1]), 0, (255, 255, 255))
+
 
     def start(self):
         while True:
@@ -188,12 +196,13 @@ class Game:
                 self.player2.avanza()                
 
 
-            #Modifica la posición de ball
+            #Modifica la posición de ball y comprueba sus
             if not self.pause:
                 p = self.ball1.avanza()
                 if p:
                     self.pause = True
-                    print("Punto para player{}".format(p))
+                    self.puntuaciones[p] += 1
+                    print("1: {} 2: {}".format(self.puntuaciones[1], self.puntuaciones[2]))
 
             self.ball1.comprobarChoque(self.player1)
             self.ball1.comprobarChoque(self.player2)
@@ -204,6 +213,7 @@ class Game:
             self.screen.blit(self.ball1, (self.ball1.x, self.ball1.y))
             self.screen.blit(self.player1, (self.player1.x, self.player1.y))
             self.screen.blit(self.player2, (self.player2.x, self.player2.y))
+            self.screen.blit(self.marcador1, (8, 8))
 
             self.display.flip()
 
