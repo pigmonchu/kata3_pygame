@@ -17,10 +17,11 @@ class Raquet(pg.sprite.Sprite):
     velocidad = 5
     diry = 1
 
-    def __init__(self):
+    def __init__(self, sigueA=None):
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface((self.w, self.h))
         self.image.fill(self.color)
+        self.sigueA = sigueA
 
         self.rect = self.image.get_rect()
 
@@ -37,8 +38,24 @@ class Raquet(pg.sprite.Sprite):
             self.y = 600 - self.h
 
     def update(self):
+        if self.sigueA:
+            if abs(self.sigueA.x - self.x) <= 400:
+                if between(self.sigueA.y, self.y, self.y+self.h):
+                    diry = 0
+                else:
+                    diry = (self.sigueA.y - self.y) / abs(self.sigueA.y - self.y)
+
+                self.y += diry * self.velocidad
+            print(self.y, self.sigueA.y)
+
         self.rect.x = self.x
         self.rect.y = self.y
+        
+
+    def esComputer(self):
+        if self.sigueA:
+            return True
+        return False
 
 
 class Ball(pg.sprite.Sprite):
@@ -150,7 +167,7 @@ class Game:
         self.player1 = Raquet()
         self.player1.x = 772
 
-        self.player2 = Raquet()
+        self.player2 = Raquet(self.ball1)
         self.player2.x = 12
         
         self.playersGroup = pg.sprite.Group()
@@ -200,12 +217,12 @@ class Game:
                     self.player1.velocidad = 5
                     self.player1.avanza()
 
-                if event.key == K_q:
+                if event.key == K_q and not self.player2.esComputer():
                     self.player2.diry = -1
                     self.player2.velocidad = 5
                     self.player2.avanza()
 
-                if event.key == K_a:
+                if event.key == K_a and not self.player2.esComputer():
                     self.player2.diry = 1
                     self.player2.velocidad = 5
                     self.player2.avanza()
