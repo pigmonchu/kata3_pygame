@@ -50,6 +50,7 @@ class Ball(pg.sprite.Sprite):
     velocidadIni = 5
     dirx = 1
     diry = 1
+    raquetazos = 0
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
@@ -62,7 +63,8 @@ class Ball(pg.sprite.Sprite):
         self.sound = pg.mixer.Sound(os.getcwd()+'/assets/ping.wav')
         self.lost = pg.mixer.Sound(os.getcwd()+'/assets/lost-point.wav')
 
-        self.velocidad = self.velocidadIni
+        self.velocidadX = self.velocidadIni
+        self.velocidadY = self.velocidadIni
 
     def posicion_saque(self, ganador):
         self.x = 392
@@ -73,10 +75,13 @@ class Ball(pg.sprite.Sprite):
             self.dirx = -1
         else:
             self.dirx = 1
-        self.velocidad = 0
+        self.velocidadX = 0
+        self.velocidadY = 0
+        raquetazos = 0
 
     def start(self):
-        self.velocidad = self.velocidadIni
+        self.velocidadX = self.velocidadIni
+        self.velocidadY = self.velocidadX
 
     def avanza(self):
         if self.x >= 800:
@@ -97,8 +102,8 @@ class Ball(pg.sprite.Sprite):
         if self.y <= 0:
             self.diry = 1
 
-        self.x += self.dirx * self.velocidad
-        self.y += self.diry * self.velocidad
+        self.x += self.dirx * self.velocidadX
+        self.y += self.diry * self.velocidadY
 
         self.rect.x = self.x
         self.rect.y = self.y
@@ -107,8 +112,15 @@ class Ball(pg.sprite.Sprite):
         if pg.sprite.spritecollide(self, spriteGroup, False):
             self.dirx = self.dirx * -1
             self.x += self.dirx
+            semivelocidad = max(self.velocidadY // 2, 1)
+            self.velocidadY = random.randrange(semivelocidad, 4 * semivelocidad)
 
             self.sound.play()
+
+            self.raquetazos += 1
+            if self.raquetazos >= 3:
+                self.velocidadX += 1
+                self.raquetazos = 0                
 
 
     def comprobarChoque1(self, candidata):
@@ -136,10 +148,10 @@ class Game:
         self.ball1 = Ball()
 
         self.player1 = Raquet()
-        self.player1.x = 768
+        self.player1.x = 772
 
         self.player2 = Raquet()
-        self.player2.x = 16
+        self.player2.x = 12
         
         self.playersGroup = pg.sprite.Group()
         self.allGroup = pg.sprite.Group()
