@@ -15,6 +15,7 @@ class Raquet(pg.sprite.Sprite):
     h = 96
     color = (255, 255, 255)
     velocidad = 5
+    velocidadMax = 15
     diry = 1
 
     def __init__(self, sigueA=None):
@@ -28,7 +29,10 @@ class Raquet(pg.sprite.Sprite):
     def pointInit(self):
         self.y = (600 - self.h) // 2
 
-    def avanza(self):
+    def avanza(self, acelera=None):
+        if acelera:
+            self.velocidad = min(self.velocidadMax, self.velocidad+acelera)
+
         self.y += self.diry * self.velocidad
 
         if self.y <=0:
@@ -39,14 +43,10 @@ class Raquet(pg.sprite.Sprite):
 
     def update(self):
         if self.sigueA:
-            if abs(self.sigueA.x - self.x) <= 400:
-                if between(self.sigueA.y, self.y, self.y+self.h):
-                    diry = 0
-                else:
-                    diry = (self.sigueA.y - self.y) / abs(self.sigueA.y - self.y)
-
-                self.y += diry * self.velocidad
-            print(self.y, self.sigueA.y)
+            if abs(self.sigueA.x - self.x) <= 65:
+                if not between(self.sigueA.y, self.y, self.y+self.h):
+                    self.diry = (self.sigueA.y - self.y) / abs(self.sigueA.y - self.y)
+                    self.avanza(1)
 
         self.rect.x = self.x
         self.rect.y = self.y
@@ -236,27 +236,19 @@ class Game:
         keys_pressed = pg.key.get_pressed()
         if keys_pressed[K_UP]:
             self.player1.diry = -1
-            if self.player1.velocidad < 15:
-                self.player1.velocidad += 1
-            self.player1.avanza()
+            self.player1.avanza(1)
 
         if keys_pressed[K_DOWN]:
             self.player1.diry = 1
-            if self.player1.velocidad < 15:
-                self.player1.velocidad += 1
-            self.player1.avanza()                
+            self.player1.avanza(1)                
 
         if keys_pressed[K_q]:
             self.player2.diry = -1
-            if self.player2.velocidad < 15:
-                self.player2.velocidad += 1
-            self.player2.avanza()
+            self.player2.avanza(1)
 
         if keys_pressed[K_a]:
             self.player2.diry = 1
-            if self.player2.velocidad < 15:
-                self.player2.velocidad += 1
-            self.player2.avanza()                
+            self.player2.avanza(1)                
 
     def recalculate(self):
         #Modifica la posición de ball y comprueba sus
@@ -266,6 +258,8 @@ class Game:
             self.marcador1 = self.fuente.render(str(self.puntuaciones[1]), 1, (255, 255, 255))
             self.marcador2 = self.fuente.render(str(self.puntuaciones[2]), 1, (255, 255, 255))
             self.ball1.posicion_saque(p)
+            self.player1.pointInit()
+            self.player2.pointInit()
 
             if self.puntuaciones[1] >= self.winScore or self.puntuaciones[2] >= self.winScore:
                 self.winner = self.fuente.render("Ganador jugador {}".format(p), 1, (255, 255, 0))
